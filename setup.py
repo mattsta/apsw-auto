@@ -230,19 +230,19 @@ fetch_parts = []
 class fetch(Command):
     description = "Automatically downloads SQLite and components"
     user_options = [
-        ("version=", None, "Which version of SQLite/components to get (default current)"),
+        ("version=", "3.36.0", "Which version of SQLite/components to get (default current)"),
         ("missing-checksum-ok", None, "Continue on a missing checksum (default abort)"),
-        ("sqlite", None, "Download SQLite amalgamation"),
-        ("all", None, "Download all downloadable components"),
+        ("sqlite", True, "Download SQLite amalgamation"),
+        ("all", True, "Download all downloadable components"),
     ]
     fetch_options = ['sqlite']
     boolean_options = fetch_options + ['all', 'missing-checksum-ok']
 
     def initialize_options(self):
         self.version = None
-        self.sqlite = False
-        self.all = False
-        self.missing_checksum_ok = False
+        self.sqlite = True
+        self.all = True
+        self.missing_checksum_ok = True
 
     def finalize_options(self):
         # If all is selected then turn on all components
@@ -514,7 +514,7 @@ class fetch(Command):
 # We allow enable/omit to be specified to build and then pass them to build_ext
 build_enable = None
 build_omit = None
-build_enable_all_extensions = False
+build_enable_all_extensions = True
 
 bparent = build.build
 
@@ -528,6 +528,8 @@ class apsw_build(bparent):
     boolean_options = bparent.boolean_options + ["enable-all-extensions"]
 
     def initialize_options(self):
+        self.run_command("fetch")
+
         v = bparent.initialize_options(self)
         self.enable = None
         self.omit = None
@@ -910,9 +912,9 @@ if "bdist_msi" in sys.argv:
 
     version = ".".join([str(v) for v in version])
 
-setup(name="apsw",
+setup(name="apsw-auto",
       version=version,
-      description="Another Python SQLite Wrapper",
+      description="Another Python SQLite Wrapper (with automatic downloads)",
       long_description=\
 """A Python wrapper for the SQLite embedded relational database engine.
 In contrast to other wrappers such as pysqlite it focuses on being
