@@ -221,17 +221,17 @@ class fetch(Command):
     user_options = [
         ("version=", None, f"Which version of SQLite/components to get (default { sqliteversion(version) })"),
         ("missing-checksum-ok", None, "Continue on a missing checksum (default abort)"),
-        ("sqlite", None, "Download SQLite amalgamation"),
-        ("all", None, "Download all downloadable components"),
+        ("sqlite", True, "Download SQLite amalgamation"),
+        ("all", True, "Download all downloadable components"),
     ]
     fetch_options = ['sqlite']
     boolean_options = fetch_options + ['all', 'missing-checksum-ok']
 
     def initialize_options(self):
         self.version = None
-        self.sqlite = False
-        self.all = False
-        self.missing_checksum_ok = False
+        self.sqlite = True
+        self.all = True
+        self.missing_checksum_ok = True
 
     def finalize_options(self):
         global fetch_parts
@@ -440,7 +440,7 @@ class fetch(Command):
 # We allow enable/omit to be specified to build and then pass them to build_ext
 build_enable = None
 build_omit = None
-build_enable_all_extensions = False
+build_enable_all_extensions = True
 
 bparent = build.build
 
@@ -459,6 +459,7 @@ class apsw_build(bparent):
         bparent.__init__(self, dist)
 
     def initialize_options(self):
+        self.run_command("fetch")
         v = bparent.initialize_options(self)
         self.enable = None
         self.omit = None
@@ -811,7 +812,7 @@ def get_icu_config() -> IcuConfig | None:
 depends = [f for f in glob.glob("src/*.[ch]") if f != "src/apsw.c"]
 
 if __name__ == '__main__':
-    setup(name="apsw",
+    setup(name="apsw-auto",
           version=version,
           python_requires=">=3.8",
           description="Another Python SQLite Wrapper",
